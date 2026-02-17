@@ -1,0 +1,39 @@
+{
+  "name": "metaverse-town",
+  "version": "1.0.0",
+  "description": "Metaverse Town - Three.js + Colyseus + Vite",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Masterhuthiu/metaverse-town.git"
+  },
+  "keywords": [
+    "threejs",
+    "colyseus",
+    "metaverse",
+    "multiplayer"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Masterhuthiu/metaverse-town/issues"
+  },
+  "homepage": "https://github.com/Masterhuthiu/metaverse-town#readme",
+  "dependencies": {
+    "@colyseus/schema": "2.0.34",
+    "colyseus": "0.15.57",
+    "colyseus.js": "0.15.13",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}
