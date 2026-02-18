@@ -1,116 +1,3 @@
-// import * as THREE from "three"
-// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-
-
-// /* ================= SCENE ================= */
-// const scene = new THREE.Scene()
-// scene.background = new THREE.Color(0x87ceeb)
-
-// /* ================= CAMERA ================= */
-// const camera = new THREE.PerspectiveCamera(
-//     60,
-//     window.innerWidth / window.innerHeight,
-//     0.1,
-//     1000
-// )
-// camera.position.set(0, 2, 6)
-
-// /* ================= RENDERER ================= */
-// const renderer = new THREE.WebGLRenderer({ antialias: true })
-// renderer.setSize(window.innerWidth, window.innerHeight)
-// document.body.appendChild(renderer.domElement)
-
-// /* ================= LIGHT ================= */
-// scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1))
-
-// const dirLight = new THREE.DirectionalLight(0xffffff, 1)
-// dirLight.position.set(5, 10, 7)
-// scene.add(dirLight)
-
-// /* ================= CONTROLS ================= */
-// const controls = new OrbitControls(camera, renderer.domElement)
-// controls.target.set(0, 1, 0)
-// controls.update()
-
-// /* ================= CLOCK ================= */
-// const clock = new THREE.Clock()
-// let mixer = null
-
-// /* ⭐ GLOBAL PLAYER */
-// let player = null
-
-// /* ================= LOADER ================= */
-// const loader = new GLTFLoader()
-
-// /* ================= LOAD MAP ================= */
-// loader.load("/models/map.glb", (gltf) => {
-//     const map = gltf.scene
-//     scene.add(map)
-//     console.log("🗺️ MAP LOADED")
-// })
-
-// /* ================= LOAD PLAYER ================= */
-// loader.load("/models/android.glb", (gltf) => {
-//     player = gltf.scene
-//     window.player = player
-
-//     console.log("MODEL:", player)
-//     console.log("ANIMATIONS:", gltf.animations)
-
-//     /* ===== RESET transform từ file gốc ===== */
-//     player.position.set(0, 0, 0)
-//     player.rotation.set(0, 0, 0)
-//     player.scale.set(1, 1, 1)
-
-//     /* ===== AUTO FIT SIZE ===== */
-//     const box = new THREE.Box3().setFromObject(player)
-//     const size = box.getSize(new THREE.Vector3())
-
-//     const maxDim = Math.max(size.x, size.y, size.z)
-//     const scale = 2 / maxDim
-//     player.scale.setScalar(scale)
-
-//     /* ===== ĐẶT LÊN MẶT ĐẤT ===== */
-//     const newBox = new THREE.Box3().setFromObject(player)
-//     player.position.y = -newBox.min.y
-
-//     scene.add(player)
-//     console.log("🧍 PLAYER ADDED")
-
-//     /* ===== CAMERA NHÌN TRÚNG PLAYER ===== */
-//     controls.target.set(0, 1, 0)
-//     camera.position.set(0, 2, 5)
-//     controls.update()
-
-//     /* ===== PLAY ANIMATION ===== */
-//     if (gltf.animations.length > 0) {
-//         mixer = new THREE.AnimationMixer(player)
-//         mixer.clipAction(gltf.animations[0]).play()
-//     }
-// })
-
-
-// /* ================= LOOP ================= */
-// function animate() {
-//     requestAnimationFrame(animate)
-
-//     const delta = clock.getDelta()
-//     if (mixer) mixer.update(delta)
-
-//     renderer.render(scene, camera)
-// }
-// animate()
-
-// /* ================= RESIZE ================= */
-// window.addEventListener("resize", () => {
-//     camera.aspect = window.innerWidth / window.innerHeight
-//     camera.updateProjectionMatrix()
-//     renderer.setSize(window.innerWidth, window.innerHeight)
-// })
-
-//////////////
-
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
@@ -126,24 +13,27 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 )
-camera.position.set(0, 2, 6)
+camera.position.set(0, 5, 10) // Đặt camera ở phía sau (Z dương) để nhìn về 0
 
 /* ================= RENDERER ================= */
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.shadowMap.enabled = true
 document.body.appendChild(renderer.domElement)
 
 /* ================= LIGHT ================= */
 scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1))
-
 const dirLight = new THREE.DirectionalLight(0xffffff, 1)
 dirLight.position.set(5, 10, 7)
+dirLight.castShadow = true
 scene.add(dirLight)
 
 /* ================= CONTROLS ================= */
 const controls = new OrbitControls(camera, renderer.domElement)
-controls.target.set(0, 1, 0)
-controls.update()
+controls.enablePan = false 
+controls.enableDamping = true
+controls.minDistance = 4
+controls.maxDistance = 15
 
 /* ================= CLOCK ================= */
 const clock = new THREE.Clock()
@@ -162,47 +52,42 @@ window.addEventListener("keyup", (e) => (keys[e.key.toLowerCase()] = false))
 /* ================= LOADER ================= */
 const loader = new GLTFLoader()
 
-/* ================= LOAD MAP ================= */
+// Load Map
 loader.load("/models/map.glb", (gltf) => {
     scene.add(gltf.scene)
 })
 
-/* ================= LOAD PLAYER ================= */
-loader.load("/models/animation.glb", (gltf) => {
+// Load Player
+loader.load("/models/Soldier.glb", (gltf) => {
     player = gltf.scene
-
-    /* reset transform */
     player.position.set(0, 0, 0)
-    player.rotation.set(0, 0, 0)
-    player.scale.set(1, 1, 1)
+    
+    // Xoay mặt mặc định của Soldier về đúng hướng
+    player.rotation.y = Math.PI 
 
-    /* auto scale */
+    // Auto Scale
     const box = new THREE.Box3().setFromObject(player)
     const size = box.getSize(new THREE.Vector3())
     const scale = 2 / Math.max(size.x, size.y, size.z)
     player.scale.setScalar(scale)
 
-    /* đặt lên mặt đất */
     const newBox = new THREE.Box3().setFromObject(player)
     player.position.y = -newBox.min.y
 
     scene.add(player)
 
-    /* animation */
     if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(player)
-
         idleAction = mixer.clipAction(gltf.animations[0])
         idleAction.play()
 
-        if (gltf.animations[1]) {
-            walkAction = mixer.clipAction(gltf.animations[1])
-        }
+        const walkClip = THREE.AnimationClip.findByName(gltf.animations, "Walk") || gltf.animations[3]
+        if (walkClip) walkAction = mixer.clipAction(walkClip)
     }
 })
 
-/* ================= MOVE CONFIG ================= */
-const speed = 3
+/* ================= LOGIC DI CHUYỂN (FIXED) ================= */
+const speed = 5
 
 function updateMovement(delta) {
     if (!player) return
@@ -210,54 +95,59 @@ function updateMovement(delta) {
     let moveX = 0
     let moveZ = 0
 
-    // WASD
-    if (keys["w"]) moveZ -= 1
-    if (keys["s"]) moveZ += 1
-    if (keys["a"]) moveX -= 1
-    if (keys["d"]) moveX += 1
-
-    // Arrow keys
-    if (keys["arrowup"]) moveZ -= 1
-    if (keys["arrowdown"]) moveZ += 1
-    if (keys["arrowleft"]) moveX -= 1
-    if (keys["arrowright"]) moveX += 1
+    // Đọc input
+    if (keys["w"] || keys["arrowup"]) moveZ -= 1    // Tiến lên (về phía trước camera)
+    if (keys["s"] || keys["arrowdown"]) moveZ += 1  // Lùi lại
+    if (keys["a"] || keys["arrowleft"]) moveX -= 1  // Sang trái camera
+    if (keys["d"] || keys["arrowright"]) moveX += 1 // Sang phải camera
 
     const isMoving = moveX !== 0 || moveZ !== 0
 
     if (isMoving) {
-        const dir = new THREE.Vector3(moveX, 0, moveZ).normalize()
+        // 1. Lấy hướng của Camera nhưng bỏ qua trục Y (để không đi xuyên xuống đất)
+        const cameraAngle = Math.atan2(
+            camera.position.x - player.position.x,
+            camera.position.z - player.position.z
+        )
 
-        // di chuyển
-        player.position.x += dir.x * speed * delta
-        player.position.z += dir.z * speed * delta
+        // 2. Tính toán vector di chuyển dựa trên góc của Camera
+        const moveDir = new THREE.Vector3(moveX, 0, moveZ).normalize()
+        moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraAngle)
 
-        // xoay theo hướng đi
-        const angle = Math.atan2(dir.x, dir.z)
-        player.rotation.y = angle
+        // 3. Cập nhật vị trí
+        player.position.x += moveDir.x * speed * delta
+        player.position.z += moveDir.z * speed * delta
 
-        // animation walk
+        // 4. Xoay nhân vật nhìn về hướng di chuyển (mượt mà)
+        const targetRotationY = Math.atan2(moveDir.x, moveDir.z) + Math.PI
+        const targetQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, targetRotationY, 0))
+        player.quaternion.slerp(targetQuaternion, 0.15)
+
+        // Animation Walk
         if (walkAction && !walkAction.isRunning()) {
-            idleAction?.fadeOut(0.2)
-            walkAction.reset().fadeIn(0.2).play()
+            idleAction?.fadeOut(0.3)
+            walkAction.reset().fadeIn(0.3).play()
         }
     } else {
-        // animation idle
+        // Animation Idle
         if (walkAction && walkAction.isRunning()) {
-            walkAction.fadeOut(0.2)
-            idleAction?.reset().fadeIn(0.2).play()
+            walkAction.fadeOut(0.3)
+            idleAction?.reset().fadeIn(0.3).play()
         }
     }
+
+    // --- CAMERA BÁM ĐUÔI ---
+    // Camera bám theo tâm nhân vật
+    controls.target.lerp(new THREE.Vector3(player.position.x, player.position.y + 1.5, player.position.z), 0.2)
+    controls.update()
 }
 
 /* ================= LOOP ================= */
 function animate() {
     requestAnimationFrame(animate)
-
     const delta = clock.getDelta()
-
     if (mixer) mixer.update(delta)
     updateMovement(delta)
-
     renderer.render(scene, camera)
 }
 animate()
